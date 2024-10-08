@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { APP_NAME, KEY } from "../helpers/Config.js";
 import StarRating from "./StarRating.js";
 import Loader from "./Loader.js";
+import { useKey } from "../hooks/useKey.js";
 
 export default function MovieDetails({
   selectedMovieId,
@@ -11,7 +12,6 @@ export default function MovieDetails({
 }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [userRating, setUserRating] = useState(existingRating);
 
   const countRef = useRef(0);
@@ -59,28 +59,13 @@ export default function MovieDetails({
     onCloseMovie();
   }
 
-  useEffect(
-    function () {
-      const callback = function (e) {
-        if (e.code === "Escape") {
-          onCloseMovie();
-        }
-      };
-      document.addEventListener("keydown", callback);
-
-      return () => {
-        document.removeEventListener("keydown", callback);
-      };
-    },
-    [onCloseMovie]
-  );
+  useKey("Escape", onCloseMovie);
 
   useEffect(
     function () {
       async function getMovieDetails() {
         try {
           setIsLoading(true);
-          setError("");
 
           const res = await fetch(
             `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedMovieId}`
@@ -93,7 +78,7 @@ export default function MovieDetails({
 
           setMovie(data);
         } catch (e) {
-          setError(e.message);
+          console.error(e);
         } finally {
           setIsLoading(false);
         }
