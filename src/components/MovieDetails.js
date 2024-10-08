@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { APP_NAME, KEY } from "../helpers/Config.js";
 import StarRating from "./StarRating.js";
 import Loader from "./Loader.js";
@@ -14,6 +14,8 @@ export default function MovieDetails({
   const [error, setError] = useState("");
   const [userRating, setUserRating] = useState(existingRating);
 
+  const countRef = useRef(0);
+
   const {
     Title: title,
     Year: year,
@@ -26,6 +28,17 @@ export default function MovieDetails({
     Director: director,
     Genre: genre,
   } = movie;
+
+  useEffect(
+    function () {
+      if (userRating) {
+        countRef.current = countRef.current + 1;
+      }
+
+      console.log(countRef.current);
+    },
+    [userRating]
+  );
 
   function handleSetRating(value) {
     setUserRating(value);
@@ -40,6 +53,7 @@ export default function MovieDetails({
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
+      countRatingDecisions: countRef.current,
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
